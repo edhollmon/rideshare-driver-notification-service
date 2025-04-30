@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DriverNotificationMessage {
+public class DriverNotification {
     public String pickUpLongitude;
     public String pickUpLatitude;
     public String driverId;

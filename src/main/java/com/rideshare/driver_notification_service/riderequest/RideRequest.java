@@ -1,4 +1,4 @@
-package com.rideshare.driver_notification_service.drivernotification;
+package com.rideshare.driver_notification_service.riderequest;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

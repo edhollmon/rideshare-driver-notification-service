@@ -1,4 +1,4 @@
-package com.rideshare.driver_notification_service.drivernotification;
+package com.rideshare.driver_notification_service.riderequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rideshare.driver_notification_service.drivernotification.DriverNotification;
 
 import io.awspring.cloud.sqs.annotation.SqsListener;
 import software.amazon.awssdk.services.sqs.SqsClient;
@@ -38,7 +39,7 @@ public class RideRequestQueueConsumer {
             int messageDelay = 0; // Delay in seconds
             for (String driverId : new String[] {"driver1", "driver2", "driver3"}) {
                 // Construct a DriverNotificationMessage object
-                DriverNotificationMessage driverNotification = new DriverNotificationMessage(
+                DriverNotification driverNotification = new DriverNotification(
                     rideRequest.getPickUpLongitude(),
                     rideRequest.getPickUpLatitude(),
                     driverId
