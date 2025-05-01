@@ -40,27 +40,19 @@ public class RideRequestQueueConsumer {
     public void listen(Message rideRequestMessage, RideRequest rideRequest) {
         logger.info("Received rider request: {}", rideRequest);
 
-        try (Jedis jedis = new Jedis("localhost", 6379)) {
-            String geoKey = "drivers:locations";
-            double longitude = rideRequest.getPickUpLongitude();
-            double latitude = rideRequest.getPickUpLatitude();
-            double radiusInMiles = 50.0;
-
-            List<GeoRadiusResponse> nearbyDrivers = jedis.georadius(
-                geoKey,
-                longitude,
-                latitude,
-                radiusInMiles,
-                GeoUnit.MI,
-                GeoRadiusParam.geoRadiusParam().withCoord().withDist()
+        try {
+            List<GeoRadiusResponse> nearbyDrivers = getNearbyDrivers(
+                rideRequest.getPickUpLongitude(),
+                rideRequest.getPickUpLatitude(),
+                50.0
             );
 
             if (nearbyDrivers.isEmpty()) {
-                logger.info("No drivers found within {} miles.", radiusInMiles);
+                logger.info("No drivers found within {} miles.", 50.0);
                 return;
             }
 
-            logger.info("Found {} drivers within {} miles.", nearbyDrivers.size(), radiusInMiles);
+            logger.info("Found {} drivers within {} miles.", nearbyDrivers.size(), 50.0);
 
             List<String> driverIds = new ArrayList<>();
             for (GeoRadiusResponse response : nearbyDrivers) {
@@ -70,6 +62,24 @@ public class RideRequestQueueConsumer {
             sendDriverNotifications(driverIds, rideRequest);
         } catch (Exception e) {
             logger.error("Failed to process message: {}", rideRequest, e);
+        }
+    }
+
+    private List<GeoRadiusResponse> getNearbyDrivers(double longitude, double latitude, double radiusInMiles) {
+        String geoKey = "drivers:locations";
+
+        try (Jedis jedis = new Jedis("localhost", 6379)) {
+            return jedis.georadius(
+                geoKey,
+                longitude,
+                latitude,
+                radiusInMiles,
+                GeoUnit.MI,
+                GeoRadiusParam.geoRadiusParam().withCoord().withDist()
+            );
+        } catch (Exception e) {
+            logger.error("Failed to fetch nearby drivers from Redis.", e);
+            return new ArrayList<>();
         }
     }
 
