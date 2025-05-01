@@ -1,5 +1,8 @@
 package com.rideshare.driver_notification_service.riderequest;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +17,10 @@ import software.amazon.awssdk.services.sqs.model.DeleteMessageRequest;
 import software.amazon.awssdk.services.sqs.model.Message;
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 import software.amazon.awssdk.services.sqs.model.SqsException;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.args.GeoUnit;
+import redis.clients.jedis.params.GeoRadiusParam;
+import redis.clients.jedis.resps.GeoRadiusResponse;
 
 @Service
 public class RideRequestQueueConsumer {
@@ -37,7 +44,38 @@ public class RideRequestQueueConsumer {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             int messageDelay = 0; // Delay in seconds
-            for (String driverId : new String[] {"driver1", "driver2", "driver3"}) {
+            List<String> driverIds = new ArrayList<>();
+            // Get drivers within 5 miles of the rider's location using jedis
+            try (Jedis jedis = new Jedis("localhost", 6379)) { // Replace with your Redis host and port
+                String geoKey = "drivers:locations"; // Redis key for storing driver locations
+                double longitude = rideRequest.getPickUpLongitude();
+                double latitude = rideRequest.getPickUpLatitude();
+                double radiusInMiles = 50.0;
+
+                // Query Redis for drivers within the specified radius
+                List<GeoRadiusResponse> nearbyDrivers = jedis.georadius(
+                    geoKey,
+                    longitude,
+                    latitude,
+                    radiusInMiles,
+                    GeoUnit.MI,
+                    GeoRadiusParam.geoRadiusParam().withCoord().withDist()
+                );
+                jedis.close();
+                if (nearbyDrivers.isEmpty()) {
+                    logger.info("No drivers found within 5 miles.");
+                } else {
+                    logger.info("Found " + nearbyDrivers + " drivers within 5 miles.");
+                }
+
+                // Extract driver IDs from the GeoRadiusResponse
+                for (GeoRadiusResponse response : nearbyDrivers) {
+                    driverIds.add(response.getMemberByString());
+                }
+
+            }
+
+            for (String driverId : driverIds) {
                 // Construct a DriverNotificationMessage object
                 DriverNotification driverNotification = new DriverNotification(
                     rideRequest.getPickUpLongitude(),

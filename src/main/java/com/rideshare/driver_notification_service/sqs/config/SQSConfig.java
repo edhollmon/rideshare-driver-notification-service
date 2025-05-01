@@ -10,6 +10,8 @@ import io.awspring.cloud.sqs.config.SqsBootstrapConfiguration;
 import io.awspring.cloud.sqs.config.SqsMessageListenerContainerFactory;
 import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 
 @Configuration
 @Import(SqsBootstrapConfiguration.class)
@@ -17,10 +19,19 @@ public class SQSConfig {
     @Value("${aws.sqs.region}")
     private String region;
 
+    @Value("${aws.accessKeyId}")
+    private String accessKeyId;
+
+    @Value("${aws.secretAccessKey}")
+    private String secretAccessKey;
+
     @Bean
     public SqsClient sqsClient() {
         return SqsClient.builder()
                 .region(software.amazon.awssdk.regions.Region.of(region))
+                .credentialsProvider(StaticCredentialsProvider.create(
+                    AwsBasicCredentials.create(accessKeyId, secretAccessKey)
+                ))
                 .build();
     }
 
@@ -34,13 +45,16 @@ public class SQSConfig {
 
     @Bean
     public SqsAsyncClient sqsAsyncClient() {
-        return SqsAsyncClient.builder().build();
+        return SqsAsyncClient.builder()
+                .region(software.amazon.awssdk.regions.Region.of(region))
+                .credentialsProvider(StaticCredentialsProvider.create(
+                    AwsBasicCredentials.create(accessKeyId, secretAccessKey)
+                ))
+                .build();
     }
 
     @Bean
     public Listener listener() {
         return new Listener();
     }
-
-    
 }

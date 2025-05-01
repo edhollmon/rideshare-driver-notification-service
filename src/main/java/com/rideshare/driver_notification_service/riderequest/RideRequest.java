@@ -7,8 +7,8 @@ import lombok.Data;
 
 @Data
 public class RideRequest {
-    private String pickUpLongitude;
-    private String pickUpLatitude;
+    private Double pickUpLongitude;
+    private Double pickUpLatitude;
     private String receiptHandle; // Add receiptHandle property
 
     // Default constructor for Jackson
@@ -17,8 +17,8 @@ public class RideRequest {
 
     @JsonCreator
     public RideRequest(
-        @JsonProperty("pickUpLongitude") String pickUpLongitude,
-        @JsonProperty("pickUpLatitude") String pickUpLatitude,
+        @JsonProperty("pickUpLongitude") Double pickUpLongitude,
+        @JsonProperty("pickUpLatitude") Double pickUpLatitude,
         @JsonProperty("receiptHandle") String receiptHandle // Include receiptHandle in constructor
     ) {
         this.pickUpLongitude = pickUpLongitude;
@@ -26,19 +26,19 @@ public class RideRequest {
         this.receiptHandle = receiptHandle;
     }
 
-    public String getPickUpLongitude() {
+    public Double getPickUpLongitude() {
         return pickUpLongitude;
     }
 
-    public void setPickUpLongitude(String pickUpLongitude) {
+    public void setPickUpLongitude(Double pickUpLongitude) {
         this.pickUpLongitude = pickUpLongitude;
     }
 
-    public String getPickUpLatitude() {
+    public Double getPickUpLatitude() {
         return pickUpLatitude;
     }
 
-    public void setPickUpLatitude(String pickUpLatitude) {
+    public void setPickUpLatitude(Double pickUpLatitude) {
         this.pickUpLatitude = pickUpLatitude;
     }
 
