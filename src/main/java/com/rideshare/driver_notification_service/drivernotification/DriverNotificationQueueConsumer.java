@@ -15,7 +15,7 @@ public class DriverNotificationQueueConsumer {
 
     @SqsListener("${aws.sqs.ride-match-queue-url}")
     public void listen(Message message, DriverNotification driverNotification) {
-        logger.info("Driver notification  : " + driverNotification);
+        logger.info("Consumer Recieved Driver notification  : " + driverNotification);
        
     }
 }

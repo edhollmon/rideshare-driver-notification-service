@@ -18,9 +18,8 @@ public class DriverNotificationServiceApplication {
 		jedis.geoadd("drivers:locations", -118.4912, 34.0194, "driver1");
 		jedis.geoadd("drivers:locations", -118.4912, 34.0194, "driver2");
 		jedis.geoadd("drivers:locations", -118.4912, 34.0194, "driver3");
-		// Get drivers within 5 miles of the rider's location
 		String driverLocation = jedis.georadius("drivers:locations", -118.4912, 34.0194, 5, GeoUnit.M).toString();
-		System.out.println("Driver Location: " + driverLocation);
+		System.out.println("Seeded Driver locations Location: " + driverLocation);
 		jedis.close();
 
 	}
